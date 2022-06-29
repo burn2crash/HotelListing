@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HotelListing.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace HotelListing.Models
+namespace HotelListing.DataAccess.Data
 {
     public class ApplicationDbContext : DbContext
     {
