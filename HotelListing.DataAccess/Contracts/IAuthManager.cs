@@ -10,6 +10,7 @@ namespace HotelListing.DataAccess.Contracts
 {
     public interface IAuthManager
     {
-        Task<IEnumerable<IdentityError>> Register(ApiUserDto userDto);
+        Task<IEnumerable<IdentityError>> RegisterAsync(ApiUserDto userDto);
+        Task<AuthResponseDto> LoginAsync(LoginDto loginDto);
     }
 }

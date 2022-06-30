@@ -11,6 +11,8 @@ namespace HotelListing.DataAccess.Contracts
         ICountriesRepository Countries { get; }
         IHotelsRepository Hotels { get; }
 
+        IAuthManager Authentication { get; }
+
         public void Save();
     }
 }
