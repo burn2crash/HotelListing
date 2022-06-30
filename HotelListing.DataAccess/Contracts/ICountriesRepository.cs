@@ -10,5 +10,6 @@ namespace HotelListing.DataAccess.Contracts
     public interface ICountriesRepository : IGenericRepository<Country>
     {
         void Update(Country country);
+        Country GetById(int id);
     }
 }
