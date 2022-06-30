@@ -3,6 +3,7 @@ using HotelListing.DataAccess.Contracts;
 using HotelListing.Models;
 using HotelListing.Models.DTOs.Country;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -79,7 +80,19 @@ namespace HotelListing.API.Controllers
             _mapper.Map(countryDto, country);
 
             _context.Countries.Update(country);
-            _context.Save();
+
+            try
+            {
+                _context.Save();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                if (!_context.Countries.Exists(h => h.Id == id))
+                {
+                    return NotFound();
+                }
+                else throw;
+            }
 
             return NoContent();
         }

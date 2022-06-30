@@ -4,6 +4,7 @@ using HotelListing.Models;
 using HotelListing.Models.DTOs.Hotel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.API.Controllers
 {
@@ -76,7 +77,19 @@ namespace HotelListing.API.Controllers
             _mapper.Map(hotelDto, hotel);
 
             _context.Hotels.Update(hotel);
-            _context.Save();
+
+            try
+            {
+                _context.Save();
+            }
+            catch(DbUpdateConcurrencyException ex)
+            {
+                if (!_context.Hotels.Exists(h => h.Id == id))
+                {
+                    return NotFound();
+                }
+                else throw;
+            }
 
             return NoContent();
         }

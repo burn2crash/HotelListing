@@ -39,7 +39,7 @@ namespace HotelListing.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contries");
+                    b.ToTable("Contries", (string)null);
 
                     b.HasData(
                         new
@@ -94,7 +94,7 @@ namespace HotelListing.DataAccess.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("Hotels");
+                    b.ToTable("Hotels", (string)null);
 
                     b.HasData(
                         new
