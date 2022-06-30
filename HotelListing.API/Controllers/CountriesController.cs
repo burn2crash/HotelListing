@@ -97,6 +97,7 @@ namespace HotelListing.API.Controllers
                 return NotFound();
 
             _context.Countries.Remove(country);
+            _context.Save();
 
             return NoContent();
         }

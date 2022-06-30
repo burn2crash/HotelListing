@@ -10,5 +10,6 @@ namespace HotelListing.DataAccess.Contracts
     public interface IHotelsRepository : IGenericRepository<Hotel>
     {
         void Update(Hotel hotel);
+        Hotel GetById(int id);
     }
 }

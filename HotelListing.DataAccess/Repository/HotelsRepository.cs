@@ -1,6 +1,7 @@
 ﻿using HotelListing.DataAccess.Contracts;
 using HotelListing.DataAccess.Data;
 using HotelListing.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,11 @@ namespace HotelListing.DataAccess.Repository
         public HotelsRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
+        }
+
+        public Hotel GetById(int id)
+        {
+            return _context.Hotels.Include(h => h.Country).FirstOrDefault(h => h.Id == id);
         }
 
         public void Update(Hotel hotel)

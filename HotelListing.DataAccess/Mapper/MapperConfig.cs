@@ -19,7 +19,10 @@ namespace HotelListing.DataAccess.Mapper
             CreateMap<Country, CountryDto>().ReverseMap();
             CreateMap<Country, UpdateCountryDto>().ReverseMap();
 
+            CreateMap<Hotel, CreateHotelDto>().ReverseMap();
+            CreateMap<Hotel, GetHotelDto>().ReverseMap();
             CreateMap<Hotel, HotelDto>().ReverseMap();
+            CreateMap<Hotel, UpdateHotelDto>().ReverseMap();
         }
     }
 }
