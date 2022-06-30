@@ -9,7 +9,6 @@ namespace HotelListing.Models.DTOs.Hotel
 {
     public class HotelDto : GetHotelDto
     {
-        public int CountryId { get; set; }
-        //public CountryDto Country { get; set; }
+        
     }
 }

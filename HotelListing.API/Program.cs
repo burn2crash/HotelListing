@@ -2,6 +2,8 @@ using HotelListing.DataAccess.Contracts;
 using HotelListing.DataAccess.Data;
 using HotelListing.DataAccess.Mapper;
 using HotelListing.DataAccess.Repository;
+using HotelListing.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -36,6 +38,10 @@ builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddIdentityCore<ApiUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 var app = builder.Build();
 

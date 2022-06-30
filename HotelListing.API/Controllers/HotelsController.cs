@@ -25,7 +25,7 @@ namespace HotelListing.API.Controllers
         public async Task<IActionResult> Get()
         {
             var hotels = _context.Hotels.GetAll();
-            var hotelDtoList = _mapper.Map<List<GetHotelDto>>(hotels);
+            var hotelDtoList = _mapper.Map<List<HotelDto>>(hotels);
 
             return Ok(hotelDtoList);
         }
@@ -61,7 +61,7 @@ namespace HotelListing.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, UpdateHotelDto hotelDto)
+        public async Task<IActionResult> Put(int id, HotelDto hotelDto)
         {
             if (hotelDto == null)
                 return BadRequest("Hotel data must be provided");

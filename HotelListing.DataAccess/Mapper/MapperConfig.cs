@@ -22,7 +22,6 @@ namespace HotelListing.DataAccess.Mapper
             CreateMap<Hotel, CreateHotelDto>().ReverseMap();
             CreateMap<Hotel, GetHotelDto>().ReverseMap();
             CreateMap<Hotel, HotelDto>().ReverseMap();
-            CreateMap<Hotel, UpdateHotelDto>().ReverseMap();
         }
     }
 }
