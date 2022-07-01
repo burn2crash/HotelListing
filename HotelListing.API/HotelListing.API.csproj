@@ -30,6 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HotelListing.DataAccess\HotelListing.DataAccess.csproj" />
     <ProjectReference Include="..\HotelListing.Models\HotelListing.Models.csproj" />
+    <ProjectReference Include="..\HotelListing.Utility\HotelListing.Utility.csproj" />
   </ItemGroup>
 
 </Project>

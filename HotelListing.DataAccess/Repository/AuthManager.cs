@@ -78,11 +78,13 @@ namespace HotelListing.DataAccess.Repository
             }
             .Union(roleClaims).Union(userClaims);
 
+            var now = DateTime.UtcNow;
             var token = new JwtSecurityToken(
                 issuer: _config["JwtSettings:Issuer"],
                 audience: _config["JwtSettings:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_config["JwtSettings:DurationInMinutes"])),
+                notBefore: now,
+                expires: now.AddMinutes(Convert.ToInt32(_config["JwtSettings:DurationInMinutes"])),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelListing.API", "HotelListing.API\HotelListing.API.csproj", "{3B24E08F-6700-4132-90AF-6FA6B8967729}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotelListing.API", "HotelListing.API\HotelListing.API.csproj", "{3B24E08F-6700-4132-90AF-6FA6B8967729}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelListing.Models", "HotelListing.Models\HotelListing.Models.csproj", "{63DC3296-81CE-43B2-95BE-88710355EDB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotelListing.Models", "HotelListing.Models\HotelListing.Models.csproj", "{63DC3296-81CE-43B2-95BE-88710355EDB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelListing.DataAccess", "HotelListing.DataAccess\HotelListing.DataAccess.csproj", "{18A0F921-7E85-4480-B2DF-E3577EBE0841}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotelListing.DataAccess", "HotelListing.DataAccess\HotelListing.DataAccess.csproj", "{18A0F921-7E85-4480-B2DF-E3577EBE0841}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelListing.Utility", "HotelListing.Utility\HotelListing.Utility.csproj", "{6C2F6BDD-3500-4106-8BB9-A2F0514454C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{18A0F921-7E85-4480-B2DF-E3577EBE0841}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18A0F921-7E85-4480-B2DF-E3577EBE0841}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18A0F921-7E85-4480-B2DF-E3577EBE0841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C2F6BDD-3500-4106-8BB9-A2F0514454C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C2F6BDD-3500-4106-8BB9-A2F0514454C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C2F6BDD-3500-4106-8BB9-A2F0514454C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C2F6BDD-3500-4106-8BB9-A2F0514454C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,6 +2,8 @@
 using HotelListing.DataAccess.Contracts;
 using HotelListing.Models;
 using HotelListing.Models.DTOs.Country;
+using HotelListing.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,6 +51,7 @@ namespace HotelListing.API.Controllers
 
         // POST api/<CountriesController>
         [HttpPost]
+        [Authorize]
         public IActionResult Post([FromBody] CreateCountryDto countryDto)
         {
             if (countryDto == null)
@@ -64,6 +67,7 @@ namespace HotelListing.API.Controllers
 
         // PUT api/<CountriesController>/5
         [HttpPut("{id}")]
+        [Authorize]
         public IActionResult Put(int id, [FromBody] UpdateCountryDto countryDto)
         {
             if (countryDto == null)
@@ -99,6 +103,7 @@ namespace HotelListing.API.Controllers
 
         // DELETE api/<CountriesController>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = SD.Roles_Admin)]
         public IActionResult Delete(int id)
         {
             if (id <= 0)

@@ -2,6 +2,8 @@
 using HotelListing.DataAccess.Contracts;
 using HotelListing.Models;
 using HotelListing.Models.DTOs.Hotel;
+using HotelListing.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +49,7 @@ namespace HotelListing.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Post(CreateHotelDto hotelDto)
         {
             if (hotelDto == null)
@@ -61,6 +64,7 @@ namespace HotelListing.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> Put(int id, HotelDto hotelDto)
         {
             if (hotelDto == null)
@@ -95,6 +99,7 @@ namespace HotelListing.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = SD.Roles_Admin)]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0)
