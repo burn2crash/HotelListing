@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HotelListing.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,12 +10,13 @@ namespace HotelListing.DataAccess.Contracts
 {
     public interface IGenericRepository<T> where T : class
     {
-        T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null);
+        Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter, string? includeProperties = null);
         //T GetById(int id);
-        IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true);
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true);
+        Task<PagedResult<TResult>> GetAllAsync<TResult>(QueryParameters queryParameters, Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true);
         void Add(T entity);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
-        bool Exists(Expression<Func<T, bool>> filter);
+        Task<bool> ExistsAsync(Expression<Func<T, bool>> filter);
     }
 }

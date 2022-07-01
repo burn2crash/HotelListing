@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Logging;
 
 namespace HotelListing.DataAccess.Repository
 {
@@ -20,16 +21,19 @@ namespace HotelListing.DataAccess.Repository
         private readonly IMapper _mapper;
         private readonly UserManager<ApiUser> _userManager;
         private readonly IConfiguration _config;
+        private readonly ILogger<AuthManager> _logger;
         private ApiUser _user;
 
         private string _loginProvider;
         private const string _refreshToken = "RefreshToken";
 
-        public AuthManager(IMapper mapper, UserManager<ApiUser> userManager, IConfiguration config)
+        public AuthManager(IMapper mapper, UserManager<ApiUser> userManager, IConfiguration config, 
+            ILogger<AuthManager> logger)
         {
             _mapper = mapper;
             _userManager = userManager;
             _config = config;
+            _logger = logger;
 
             _loginProvider = _config["JwtSettings:TokenProvider"];
         }
@@ -37,28 +41,45 @@ namespace HotelListing.DataAccess.Repository
         public async Task<string> CreateRefreshToken()
         {
             await _userManager.RemoveAuthenticationTokenAsync(_user, _loginProvider, _refreshToken);
-            var newRefrshToken = await _userManager.GenerateUserTokenAsync(_user, _loginProvider, _refreshToken);
-            var result = await _userManager.SetAuthenticationTokenAsync(_user, _loginProvider, _refreshToken, newRefrshToken);
+            var newRefreshToken = await _userManager.GenerateUserTokenAsync(_user, _loginProvider, _refreshToken);
+            var result = await _userManager.SetAuthenticationTokenAsync(_user, _loginProvider, _refreshToken, newRefreshToken);
 
-            return newRefrshToken;
+            return newRefreshToken;
         }
 
         public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
         {
+            _logger.LogInformation($"Looking for user with email {loginDto.Email}");
+
             _user = await _userManager.FindByEmailAsync(loginDto.Email);
-            var isValidUser = await _userManager.CheckPasswordAsync(_user, loginDto.Password);
-
-            if (_user == null || !isValidUser)
+            if (_user == null)
+            {
+                _logger.LogWarning($"User with email {loginDto.Email} was not found");
                 return null;
+            }
 
+            var isValidUser = await _userManager.CheckPasswordAsync(_user, loginDto.Password);
+            if (!isValidUser)
+            {
+                return null;
+            }
+
+            var response = await generateAuthResponseDtoAsync();
+
+            return response;
+        }
+
+        private async Task<AuthResponseDto> generateAuthResponseDtoAsync()
+        {
             var token = await generateTokenAsync();
-            var response = new AuthResponseDto {
+            _logger.LogInformation($"Token generated for user with email {_user.Email} | Token: {token}");
+
+            return new AuthResponseDto
+            {
                 Token = token,
                 UserId = _user.Id,
                 RefreshToken = await CreateRefreshToken()
             };
-
-            return response;
         }
 
         public async Task<IEnumerable<IdentityError>> RegisterAsync(ApiUserDto userDto)
@@ -92,12 +113,7 @@ namespace HotelListing.DataAccess.Repository
 
             if (isValidRefreshToken)
             {
-                var token = await generateTokenAsync();
-                return new AuthResponseDto {
-                    Token = token,
-                    UserId = _user.Id,
-                    RefreshToken = await CreateRefreshToken()
-                };
+                return await generateAuthResponseDtoAsync();
             }
 
             await _userManager.UpdateSecurityStampAsync(_user);

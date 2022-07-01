@@ -1,5 +1,8 @@
-﻿using HotelListing.DataAccess.Contracts;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using HotelListing.DataAccess.Contracts;
 using HotelListing.DataAccess.Data;
+using HotelListing.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,11 +16,13 @@ namespace HotelListing.DataAccess.Repository
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
         internal DbSet<T> dbSet;
 
-        public GenericRepository(ApplicationDbContext context)
+        public GenericRepository(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
             dbSet = _context.Set<T>();
         }
 
@@ -38,7 +43,7 @@ namespace HotelListing.DataAccess.Repository
             return query;
         }
 
-        IEnumerable<T> IGenericRepository<T>.GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        private IQueryable<T> getAllQuery(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
         {
             IQueryable<T> query;
 
@@ -53,35 +58,67 @@ namespace HotelListing.DataAccess.Repository
             if (filter != null)
                 query = query.Where(filter);
 
-            return query.ToList();
+            return query;
         }
 
-        T IGenericRepository<T>.GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        {
+            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<PagedResult<TResult>> GetAllAsync<TResult>(QueryParameters queryParameters, Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        {
+            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+            var pagedResult = await getPagedResultAsync<TResult>(query, queryParameters);
+            
+            return pagedResult;
+        }
+
+        private async Task<PagedResult<TResult>> getPagedResultAsync<TResult>(IQueryable<T> query, QueryParameters queryParameters)
+        {
+            var totalSize = await query.CountAsync();
+            var items = await query
+                .Skip(queryParameters.StartIndex)
+                .Take(queryParameters.PageSize)
+                .ProjectTo<TResult>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+            return new PagedResult<TResult>
+            {
+                Items = items,
+                PageNumber = queryParameters.PageNumber,
+                RecordNumber = queryParameters.PageSize,
+                TotalCount = totalSize
+            };
+        }
+
+        public async Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
 
             query = IncludeProperties(query, includeProperties);
             query = query.Where(filter);
 
-            return query.FirstOrDefault();
+            return await query.FirstOrDefaultAsync();
         }
 
-        void IGenericRepository<T>.Remove(T entity)
+        public void Remove(T entity)
         {
             dbSet.Remove(entity);
         }
 
-        void IGenericRepository<T>.RemoveRange(IEnumerable<T> entities)
+        public void RemoveRange(IEnumerable<T> entities)
         {
             dbSet.RemoveRange(entities);
         }
 
-        public bool Exists(Expression<Func<T, bool>> filter)
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> filter)
         {
             IQueryable<T> query = dbSet;
 
             query = query.Where(filter);
-            return query.Any();
+            return await query.AnyAsync();
         }
     }
 }

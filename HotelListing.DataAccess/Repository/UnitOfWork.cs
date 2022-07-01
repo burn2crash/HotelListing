@@ -18,16 +18,19 @@ namespace HotelListing.DataAccess.Repository
 
         public ICountriesRepository Countries { get; private set; }
         public IHotelsRepository Hotels { get; private set; }
-        public IAuthManager Authentication { get; private set; }
+        //public IAuthManager Authentication { get; private set; }
 
-        public UnitOfWork(ApplicationDbContext context, IMapper mapper, UserManager<ApiUser> userManager, IConfiguration config)
+        public UnitOfWork(ApplicationDbContext context, IMapper mapper
+            //, UserManager<ApiUser> userManager, 
+            //IConfiguration config
+            )
         {
             _context = context;
 
-            Countries = new CountriesRepository(context);
-            Hotels = new HotelsRepository(context);
+            Countries = new CountriesRepository(context, mapper);
+            Hotels = new HotelsRepository(context, mapper);
 
-            Authentication = new AuthManager(mapper, userManager, config);
+            //Authentication = new AuthManager(mapper, userManager, config);
         }
 
         public void Save()

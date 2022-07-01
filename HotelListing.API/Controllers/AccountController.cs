@@ -9,11 +9,13 @@ namespace HotelListing.API.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly IUnitOfWork _context;
+        private readonly IAuthManager _authManager;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(IUnitOfWork context)
+        public AccountController(IAuthManager authManager, ILogger<AccountController> logger)
         {
-            _context = context;
+            _authManager = authManager;
+            _logger = logger;
         }
 
         // POST: api/account/register
@@ -24,16 +26,29 @@ namespace HotelListing.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Register([FromBody] ApiUserDto userDto)
         {
-            var errors = await _context.Authentication.RegisterAsync(userDto);
-
-            if (errors.Any())
+            _logger.LogInformation($"Registration attempt for {userDto.Email}");
+            
+            try
             {
-                foreach (var error in errors)
-                {
-                    ModelState.AddModelError(error.Code, error.Description);
-                }
+                var errors = await _authManager.RegisterAsync(userDto);
 
-                return BadRequest(ModelState);
+                if (errors.Any())
+                {
+                    foreach (var error in errors)
+                    {
+                        ModelState.AddModelError(error.Code, error.Description);
+                    }
+
+                    return BadRequest(ModelState);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something went wrong in the {nameof(Register)} - User Registration " +
+                    $"attempt for {userDto.Email}");
+
+                return Problem($"Something went wrong in the {nameof(Register)}. Please contact support.",
+                    statusCode: StatusCodes.Status500InternalServerError);
             }
 
             return Ok();
@@ -47,10 +62,25 @@ namespace HotelListing.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            var response = await _context.Authentication.LoginAsync(loginDto);
+            AuthResponseDto response = null;
+            _logger.LogInformation($"Login attempt for {loginDto.Email}");
 
-            if (response == null)
-                return Unauthorized();
+            try
+            {
+                response = await _authManager.LoginAsync(loginDto);
+
+                if (response == null)
+                    return Unauthorized();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Something went wrong in the {nameof(Register)} - " +
+                    $"Login {loginDto.Email} for {nameof(Login)}");
+
+                return Problem($"Something went wrong in the {nameof(Login)}. Please contact support.",
+                    statusCode: StatusCodes.Status500InternalServerError);
+            }
 
             return Ok(response);
         }
@@ -63,7 +93,7 @@ namespace HotelListing.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> RefreshToken([FromBody] AuthResponseDto request)
         {
-            var authResponse = await _context.Authentication.VerifyRefrshToken(request);
+            var authResponse = await _authManager.VerifyRefrshToken(request);
 
             if (authResponse == null)
                 return Unauthorized();

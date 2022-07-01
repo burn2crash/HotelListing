@@ -1,4 +1,5 @@
-﻿using HotelListing.DataAccess.Contracts;
+﻿using AutoMapper;
+using HotelListing.DataAccess.Contracts;
 using HotelListing.DataAccess.Data;
 using HotelListing.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ namespace HotelListing.DataAccess.Repository
     {
         private readonly ApplicationDbContext _context;
 
-        public CountriesRepository(ApplicationDbContext context) : base(context)
+        public CountriesRepository(ApplicationDbContext context, IMapper mapper) : base(context, mapper)
         {
             _context = context;
         }

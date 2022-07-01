@@ -26,7 +26,7 @@ namespace HotelListing.API.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var hotels = _context.Hotels.GetAll();
+            var hotels = await _context.Hotels.GetAllAsync();
             var hotelDtoList = _mapper.Map<List<HotelDto>>(hotels);
 
             return Ok(hotelDtoList);
@@ -88,7 +88,7 @@ namespace HotelListing.API.Controllers
             }
             catch(DbUpdateConcurrencyException ex)
             {
-                if (!_context.Hotels.Exists(h => h.Id == id))
+                if (!await _context.Hotels.ExistsAsync(h => h.Id == id))
                 {
                     return NotFound();
                 }
