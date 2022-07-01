@@ -12,5 +12,7 @@ namespace HotelListing.DataAccess.Contracts
     {
         Task<IEnumerable<IdentityError>> RegisterAsync(ApiUserDto userDto);
         Task<AuthResponseDto> LoginAsync(LoginDto loginDto);
+        Task<string> CreateRefreshToken();
+        Task<AuthResponseDto> VerifyRefrshToken(AuthResponseDto request);
     }
 }
