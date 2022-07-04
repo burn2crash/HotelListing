@@ -4,6 +4,7 @@ using HotelListing.DataAccess.Contracts;
 using HotelListing.DataAccess.Data;
 using HotelListing.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,19 +37,21 @@ namespace HotelListing.DataAccess.Repository
             dbSet.Add(entity);
         }
 
-        private IQueryable<T> IncludeProperties(IQueryable<T> query, string? includeProperties)
-        {
-            if (includeProperties != null)
-            {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp);
-                }
-            }
-            return query;
-        }
+        //private IQueryable<T> IncludeProperties(IQueryable<T> query, string? includeProperties)
+        //{
+        //    if (includeProperties != null)
+        //    {
+        //        foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        //        {
+        //            query = query.Include(includeProp);
+        //        }
+        //    }
+        //    return query;
+        //}
 
-        private IQueryable<T> getAllQuery(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        private IQueryable<T> getAllQuery(Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool tracked = true)
         {
             IQueryable<T> query;
 
@@ -59,58 +62,83 @@ namespace HotelListing.DataAccess.Repository
             else
                 query = dbSet.AsNoTracking();
 
-            query = IncludeProperties(query, includeProperties);
+            //query = IncludeProperties(query, includeProperties);
             if (filter != null)
                 query = query.Where(filter);
 
+            if (include != null)
+            {
+                query = include(query);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+
             return query;
         }
-        private IQueryable<TResult> getAllQuery<TResult>(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        private IQueryable<TResult> getAllQuery<TResult>(Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool tracked = true)
         {
-            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+            IQueryable<T> query = getAllQuery(filter, orderBy, include, tracked);
 
             return query.ProjectTo<TResult>(_mapper.ConfigurationProvider);
         }
 
-        public async Task<IEnumerable<TResult>> GetAllAsync<TResult>(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        public async Task<IEnumerable<TResult>> GetAllAsync<TResult>(Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool tracked = true)
         {
-            IQueryable<TResult> query = getAllQuery<TResult>(filter, includeProperties, tracked);
+            IQueryable<TResult> query = getAllQuery<TResult>(filter, orderBy, include, tracked);
 
             return await query.ToListAsync();
         }
 
-        public IEnumerable<TResult> GetAll<TResult>(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        public IEnumerable<TResult> GetAll<TResult>(Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool tracked = true)
         {
-            IQueryable<TResult> query = getAllQuery<TResult>(filter, includeProperties, tracked);
+            IQueryable<TResult> query = getAllQuery<TResult>(filter, orderBy, include, tracked);
 
             return query.ToList();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool tracked = true)
         {
-            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+            IQueryable<T> query = getAllQuery(filter, orderBy, include, tracked);
 
             return await query.ToListAsync();
         }
 
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool tracked = true)
         {
-            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+            IQueryable<T> query = getAllQuery(filter, orderBy, include, tracked);
 
             return query.ToList();
         }
 
-        public async Task<PagedResult<TResult>> GetAllAsync<TResult>(QueryParameters queryParameters, Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        public async Task<PagedResult<TResult>> GetAllAsync<TResult>(QueryParameters queryParameters, Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool tracked = true)
         {
-            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+            IQueryable<T> query = getAllQuery(filter, orderBy, include, tracked);
             var pagedResult = await getPagedResultAsync<TResult>(query, queryParameters);
             
             return pagedResult;
         }
 
-        public PagedResult<TResult> GetAll<TResult>(QueryParameters queryParameters, Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        public PagedResult<TResult> GetAll<TResult>(QueryParameters queryParameters, Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, bool tracked = true)
         {
-            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+            IQueryable<T> query = getAllQuery(filter, orderBy, include, tracked);
             var totalSize = query.Count();
             var items = query
                 .Skip(queryParameters.StartIndex)
@@ -143,44 +171,46 @@ namespace HotelListing.DataAccess.Repository
             };
         }
 
-        public async Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public async Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
         {
-            IQueryable<T> query = dbSet;
-
-            query = IncludeProperties(query, includeProperties);
-            query = query.Where(filter);
+            var query = getFirstOrDefault(filter, include);
 
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<TResult> GetFirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public async Task<TResult> GetFirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
         {
-            IQueryable<T> query = dbSet;
-
-            query = IncludeProperties(query, includeProperties);
-            query = query.Where(filter);
+            var query = getFirstOrDefault(filter, include);
 
             return await query.ProjectTo<TResult>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
         }
 
-        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
         {
-            IQueryable<T> query = dbSet;
-
-            query = IncludeProperties(query, includeProperties);
-            query = query.Where(filter);
+            var query = getFirstOrDefault(filter, include);
 
             return query.FirstOrDefault();
         }
 
-        public TResult GetFirstOrDefault<TResult>(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public TResult GetFirstOrDefault<TResult>(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        {
+            var query = getFirstOrDefault(filter, include);
+            
+            return query.ProjectTo<TResult>(_mapper.ConfigurationProvider).FirstOrDefault();
+        }
+
+        private IQueryable<T> getFirstOrDefault(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
         {
             IQueryable<T> query = dbSet;
 
-            query = IncludeProperties(query, includeProperties);
+            //query = IncludeProperties(query, includeProperties);
+            if (include != null)
+            {
+                query = include(query);
+            }
             query = query.Where(filter);
 
-            return query.ProjectTo<TResult>(_mapper.ConfigurationProvider).FirstOrDefault();
+            return query;
         }
 
         public void Remove(T entity)
