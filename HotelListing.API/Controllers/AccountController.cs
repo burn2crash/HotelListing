@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HotelListing.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {

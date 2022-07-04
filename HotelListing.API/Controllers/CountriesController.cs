@@ -54,7 +54,7 @@ namespace HotelListing.API.Controllers
                 return BadRequest();
 
             //var country = _context.Countries.GetById(id);
-            var country = _context.Countries.GetById<CountryDto>(id);
+            var country = _context.Countries.GetById<GetCountryDto>(id);
 
             if (country == null)
             {
@@ -82,7 +82,9 @@ namespace HotelListing.API.Controllers
             await _context.Countries.AddAsync(country);
             _context.Save();
 
-            return CreatedAtAction("GetCountry", new { id = country.Id }, country);
+            var getCountryDto = _mapper.Map<GetCountryDto>(country);
+
+            return CreatedAtAction("GetCountry", new { id = country.Id }, getCountryDto);
         }
 
         // PUT api/<CountriesController>/5

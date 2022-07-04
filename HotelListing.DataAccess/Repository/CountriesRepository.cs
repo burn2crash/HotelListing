@@ -23,12 +23,13 @@ namespace HotelListing.DataAccess.Repository
 
         public Country GetById(int id)
         {
-            return _context.Contries.Include(c => c.Hotels).FirstOrDefault(c => c.Id == id);
+            //return _context.Contries.Include(c => c.Hotels).FirstOrDefault(c => c.Id == id);
+            return GetFirstOrDefault(c => c.Id == id, includeProperties: "Hotels");
         }
 
         public TResult GetById<TResult>(int id)
         {
-            return GetFirstOrDefault<TResult>(c => c.Id == id);
+            return GetFirstOrDefault<TResult>(c => c.Id == id, includeProperties: "Hotels");
         }
 
         public void Update(Country country)

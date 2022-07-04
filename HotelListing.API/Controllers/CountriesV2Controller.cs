@@ -6,6 +6,7 @@ using HotelListing.Utility;
 using HotelListing.Utility.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -30,9 +31,10 @@ namespace HotelListing.API.Controllers
 
         // GET: api/<CountriesController>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        [EnableQuery]
+        public async Task<IActionResult> GetCountries()
         {
-            var countryDtoList = _mapper.Map<List<CountryDto>>(await _context.Countries.GetAllAsync());
+            var countryDtoList = await _context.Countries.GetAllAsync<GetCountryDto>();
             return Ok(countryDtoList);
         }
 

@@ -48,7 +48,7 @@ namespace HotelListing.API.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var hotelDto = _context.Hotels.GetById<HotelDto>(id);
+            var hotelDto = _context.Hotels.GetById<GetHotelDto>(id);
 
             if (hotelDto == null)
                 return NotFound();
