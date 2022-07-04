@@ -26,7 +26,12 @@ namespace HotelListing.DataAccess.Repository
             dbSet = _context.Set<T>();
         }
 
-        void IGenericRepository<T>.Add(T entity)
+        public async Task AddAsync(T entity)
+        {
+            await dbSet.AddAsync(entity);
+        }
+
+        public void Add(T entity)
         {
             dbSet.Add(entity);
         }
@@ -60,6 +65,26 @@ namespace HotelListing.DataAccess.Repository
 
             return query;
         }
+        private IQueryable<TResult> getAllQuery<TResult>(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        {
+            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+
+            return query.ProjectTo<TResult>(_mapper.ConfigurationProvider);
+        }
+
+        public async Task<IEnumerable<TResult>> GetAllAsync<TResult>(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        {
+            IQueryable<TResult> query = getAllQuery<TResult>(filter, includeProperties, tracked);
+
+            return await query.ToListAsync();
+        }
+
+        public IEnumerable<TResult> GetAll<TResult>(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        {
+            IQueryable<TResult> query = getAllQuery<TResult>(filter, includeProperties, tracked);
+
+            return query.ToList();
+        }
 
         public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
         {
@@ -68,12 +93,37 @@ namespace HotelListing.DataAccess.Repository
             return await query.ToListAsync();
         }
 
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        {
+            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+
+            return query.ToList();
+        }
+
         public async Task<PagedResult<TResult>> GetAllAsync<TResult>(QueryParameters queryParameters, Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
         {
             IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
             var pagedResult = await getPagedResultAsync<TResult>(query, queryParameters);
             
             return pagedResult;
+        }
+
+        public PagedResult<TResult> GetAll<TResult>(QueryParameters queryParameters, Expression<Func<T, bool>>? filter = null, string? includeProperties = null, bool tracked = true)
+        {
+            IQueryable<T> query = getAllQuery(filter, includeProperties, tracked);
+            var totalSize = query.Count();
+            var items = query
+                .Skip(queryParameters.StartIndex)
+                .Take(queryParameters.PageSize)
+                .ProjectTo<TResult>(_mapper.ConfigurationProvider)
+                .ToList();
+            return new PagedResult<TResult>
+            {
+                Items = items,
+                PageNumber = queryParameters.PageNumber,
+                RecordNumber = queryParameters.PageSize,
+                TotalCount = totalSize
+            };
         }
 
         private async Task<PagedResult<TResult>> getPagedResultAsync<TResult>(IQueryable<T> query, QueryParameters queryParameters)
@@ -103,6 +153,36 @@ namespace HotelListing.DataAccess.Repository
             return await query.FirstOrDefaultAsync();
         }
 
+        public async Task<TResult> GetFirstOrDefaultAsync<TResult>(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+
+            query = IncludeProperties(query, includeProperties);
+            query = query.Where(filter);
+
+            return await query.ProjectTo<TResult>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+        }
+
+        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+
+            query = IncludeProperties(query, includeProperties);
+            query = query.Where(filter);
+
+            return query.FirstOrDefault();
+        }
+
+        public TResult GetFirstOrDefault<TResult>(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+
+            query = IncludeProperties(query, includeProperties);
+            query = query.Where(filter);
+
+            return query.ProjectTo<TResult>(_mapper.ConfigurationProvider).FirstOrDefault();
+        }
+
         public void Remove(T entity)
         {
             dbSet.Remove(entity);
@@ -119,6 +199,14 @@ namespace HotelListing.DataAccess.Repository
 
             query = query.Where(filter);
             return await query.AnyAsync();
+        }
+
+        public bool Exists(Expression<Func<T, bool>> filter)
+        {
+            IQueryable<T> query = dbSet;
+
+            query = query.Where(filter);
+            return query.Any();
         }
     }
 }

@@ -26,6 +26,11 @@ namespace HotelListing.DataAccess.Repository
             return _context.Contries.Include(c => c.Hotels).FirstOrDefault(c => c.Id == id);
         }
 
+        public TResult GetById<TResult>(int id)
+        {
+            return GetFirstOrDefault<TResult>(c => c.Id == id);
+        }
+
         public void Update(Country country)
         {
             _context.Contries.Update(country);

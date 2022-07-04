@@ -11,5 +11,6 @@ namespace HotelListing.DataAccess.Contracts
     {
         void Update(Country country);
         Country GetById(int id);
+        TResult GetById<TResult>(int id);
     }
 }

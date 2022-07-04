@@ -23,11 +23,21 @@ namespace HotelListing.API.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAllHotels()
         {
-            var hotels = await _context.Hotels.GetAllAsync();
-            var hotelDtoList = _mapper.Map<List<HotelDto>>(hotels);
+            var hotelDtoList = await _context.Hotels.GetAllAsync<HotelDto>();
+            //var hotelDtoList = _mapper.Map<List<HotelDto>>(hotels);
+
+            return Ok(hotelDtoList);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllPagedHotels([FromQuery]
+            QueryParameters queryParameters)
+        {
+            var hotelDtoList = await _context.Hotels.GetAllAsync<HotelDto>(queryParameters);
+            //var hotelDtoList = _mapper.Map<List<HotelDto>>(hotels);
 
             return Ok(hotelDtoList);
         }
@@ -38,12 +48,12 @@ namespace HotelListing.API.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var hotel = _context.Hotels.GetById(id);
+            var hotelDto = _context.Hotels.GetById<HotelDto>(id);
 
-            if (hotel == null)
+            if (hotelDto == null)
                 return NotFound();
 
-            var hotelDto = _mapper.Map<HotelDto>(hotel);
+            //var hotelDto = _mapper.Map<HotelDto>(hotel);
 
             return Ok(hotelDto);
         }

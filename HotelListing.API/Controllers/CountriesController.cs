@@ -29,11 +29,21 @@ namespace HotelListing.API.Controllers
         }
 
         // GET: api/<CountriesController>
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetCountriesAsync()
         {
-            var countryDtoList = _mapper.Map<List<CountryDto>>(await _context.Countries.GetAllAsync());
+            //var countryDtoList = _mapper.Map<List<GetCountryDto>>(await _context.Countries.GetAllAsync());
+            var countryDtoList = await _context.Countries.GetAllAsync<GetCountryDto>();
             return Ok(countryDtoList);
+        }
+
+        // GET: api/<CountriesController>/?StartIndex=0&PageSize=25&PageNumber=1
+        [HttpGet]
+        public async Task<IActionResult> GetPagedCountriesAsync([FromQuery] 
+            QueryParameters queryParameters)
+        {
+            var pagedCountriesResult = await _context.Countries.GetAllAsync<GetCountryDto>(queryParameters);
+            return Ok(pagedCountriesResult);
         }
 
         // GET api/<CountriesController>/5
@@ -43,7 +53,8 @@ namespace HotelListing.API.Controllers
             if (id == 0)
                 return BadRequest();
 
-            var country = _context.Countries.GetById(id);
+            //var country = _context.Countries.GetById(id);
+            var country = _context.Countries.GetById<CountryDto>(id);
 
             if (country == null)
             {
@@ -52,22 +63,23 @@ namespace HotelListing.API.Controllers
                 throw new NotFoundException(nameof(GetCountry), id);
             }
 
-            var countryDto = _mapper.Map<CountryDto>(country);
+            //var countryDto = _mapper.Map<CountryDto>(country);
 
-            return Ok(countryDto);
+            //return Ok(countryDto);
+            return Ok(country);
         }
 
         // POST api/<CountriesController>
         [HttpPost]
         [Authorize]
-        public IActionResult Post([FromBody] CreateCountryDto countryDto)
+        public async Task<IActionResult> Post([FromBody] CreateCountryDto countryDto)
         {
             if (countryDto == null)
                 return BadRequest();
 
             var country = _mapper.Map<Country>(countryDto);
             
-            _context.Countries.Add(country);
+            await _context.Countries.AddAsync(country);
             _context.Save();
 
             return CreatedAtAction("GetCountry", new { id = country.Id }, country);
